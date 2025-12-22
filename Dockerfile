@@ -8,7 +8,6 @@ FROM python:3.11-slim
 # =========================
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV POETRY_VIRTUALENVS_CREATE=false
 ENV DJANGO_SETTINGS_MODULE=rag_project.settings
 
 WORKDIR /app
@@ -34,9 +33,9 @@ COPY requirements.txt /app/
 RUN pip install --upgrade pip
 
 # =========================
-# Install PyTorch + core packages safely
+# Install PyTorch + core ML dependencies
 # =========================
-RUN pip install --no-cache-dir \
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu \
     torch==2.2.0 \
     torchaudio==2.2.0 \
     torchvision==0.17.0 \
