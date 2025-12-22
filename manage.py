@@ -2,10 +2,6 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from dotenv import load_dotenv
-
-# Load environment variables from .env (if present)
-load_dotenv()
 
 # Ensure the settings module is set correctly for manage commands
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rag_project.settings')
