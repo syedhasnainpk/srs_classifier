@@ -141,15 +141,11 @@ LOGGING = {
 }
 
 # External API Keys
-QDRANT_URL = os.getenv('QDRANT_URL')
-QDRANT_API_KEY = os.getenv('QDRANT_API_KEY')
-HF_API_KEY = os.getenv('HF_API_KEY')
-
-REQUIRED_ENV_VARS = ['QDRANT_URL', 'QDRANT_API_KEY', 'HF_API_KEY']
-missing_vars = [v for v in REQUIRED_ENV_VARS if not os.getenv(v)]
+required_vars = ["QDRANT_URL", "QDRANT_API_KEY", "HF_API_KEY"]
+missing_vars = [v for v in required_vars if not os.environ.get(v)]
 if missing_vars:
     raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
 
-print("✅ Environment variables loaded successfully")
-print(f"✅ Qdrant URL: {QDRANT_URL}")
-print(f"✅ HF API Key: {'*' * 20 + HF_API_KEY[-4:] if HF_API_KEY else ''}")
+QDRANT_URL = os.environ["QDRANT_URL"]
+QDRANT_API_KEY = os.environ["QDRANT_API_KEY"]
+HF_API_KEY = os.environ["HF_API_KEY"]
