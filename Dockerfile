@@ -34,9 +34,19 @@ COPY requirements.txt /app/
 RUN pip install --upgrade pip
 
 # =========================
-# Install core Python dependencies (single line, Railway-safe)
+# Install PyTorch + core packages safely
 # =========================
-RUN pip install --no-cache-dir torch==2.2.0+cpu torchaudio==2.2.0+cpu torchvision==0.17.0+cpu faiss-cpu>=1.7.4 sentence-transformers>=2.2.2 transformers>=4.34.0 datasets>=2.13.0 numpy<2 scipy scikit-learn
+RUN pip install --no-cache-dir \
+    torch==2.2.0 \
+    torchaudio==2.2.0 \
+    torchvision==0.17.0 \
+    faiss-cpu>=1.7.4 \
+    sentence-transformers>=2.2.2 \
+    transformers>=4.34.0 \
+    datasets>=2.13.0 \
+    numpy<2 \
+    scipy \
+    scikit-learn
 
 # =========================
 # Install remaining requirements
