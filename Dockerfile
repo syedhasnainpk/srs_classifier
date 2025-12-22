@@ -64,4 +64,4 @@ EXPOSE 8000
 # =========================
 # Run Django: Migrations, Collectstatic, Gunicorn
 # =========================
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn rag_project.wsgi:application --bind 0.0.0.0:${PORT:-8000}"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn rag_project.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120"]
