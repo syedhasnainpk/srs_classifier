@@ -2,14 +2,15 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-import dotenv
+from dotenv import load_dotenv
 
-dotenv.load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rag_project.settings')
 
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rag_project.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.rag_project.settings')
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

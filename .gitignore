@@ -35,7 +35,7 @@ staticfiles/
 # =========================
 # Environment variables
 # =========================
-.env
+../.env
 .env.*
 *.env
 
