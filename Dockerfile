@@ -29,21 +29,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt /app/
 
 # =========================
-# Upgrade pip and install core dependencies in one layer
+# Upgrade pip
 # =========================
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir \
-        torch==2.2.0+cpu \
-        torchaudio==2.2.0+cpu \
-        torchvision==0.17.0+cpu \
-        faiss-cpu>=1.7.4 \
-        sentence-transformers>=2.2.2 \
-        transformers>=4.34.0 \
-        datasets>=2.13.0 \
-        numpy<2 \
-        scipy \
-        scikit-learn \
-    && grep -Ev '^(torch|torchaudio|torchvision|faiss-cpu|sentence-transformers|transformers|datasets|numpy|scipy|scikit-learn)' requirements.txt > requirements_no_core.txt \
+RUN pip install --upgrade pip
+
+# =========================
+# Install core Python dependencies
+# =========================
+RUN pip install --no-cache-dir torch==2.2.0+cpu \
+    torchaudio==2.2.0+cpu \
+    torchvision==0.17.0+cpu \
+    faiss-cpu>=1.7.4 \
+    sentence-transformers>=2.2.2 \
+    transformers>=4.34.0 \
+    datasets>=2.13.0 \
+    numpy<2 \
+    scipy \
+    scikit-learn
+
+# =========================
+# Install the rest of requirements
+# =========================
+RUN grep -Ev "^(torch|torchaudio|torchvision|faiss-cpu|sentence-transformers|transformers|datasets|numpy|scipy|scikit-learn)" requirements.txt > requirements_no_core.txt \
     && pip install --no-cache-dir -r requirements_no_core.txt
 
 # =========================
