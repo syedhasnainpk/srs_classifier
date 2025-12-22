@@ -33,21 +33,16 @@ COPY requirements.txt /app/
 RUN pip install --upgrade pip
 
 # =========================
-# Install PyTorch CPU wheels
+# Install PyTorch CPU + FAISS + Sentence-Transformers + dependencies
 # =========================
-RUN pip install torch==2.2.0+cpu torchaudio==2.2.0+cpu torchvision==0.17.0+cpu --index-url https://download.pytorch.org/whl/cpu
+RUN pip install torch==2.2.0+cpu torchaudio==2.2.0+cpu torchvision==0.17.0+cpu --index-url https://download.pytorch.org/whl/cpu \
+    && pip install faiss-cpu>=1.7.4 \
+    && pip install sentence-transformers>=2.2.2 transformers>=4.34.0 datasets>=2.13.0 numpy scipy scikit-learn
 
 # =========================
-# Install FAISS, Sentence-Transformers, Datasets
+# Install the rest of requirements (excluding above)
 # =========================
-RUN pip install faiss-cpu>=1.7.4 \
-    sentence-transformers>=2.2.2 \
-    datasets>=2.13.0
-
-# =========================
-# Install the rest of requirements
-# =========================
-RUN grep -Ev '^(torch|torchaudio|torchvision|faiss-cpu|sentence-transformers|datasets)' requirements.txt > requirements_no_torch.txt \
+RUN grep -Ev '^(torch|torchaudio|torchvision|faiss-cpu|sentence-transformers|transformers|datasets|numpy|scipy|scikit-learn)' requirements.txt > requirements_no_torch.txt \
     && pip install -r requirements_no_torch.txt
 
 # =========================
