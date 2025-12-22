@@ -34,12 +34,11 @@ RUN pip install --upgrade pip
 
 # =========================
 # Install core ML dependencies safely
-# Quotes are required for >= and < operators to avoid /bin/sh errors
 # =========================
 RUN pip install --no-cache-dir \
-    torch==2.2.0+cpu \
-    torchvision==0.17.0+cpu \
-    torchaudio==2.2.0+cpu \
+    torch==2.2.0 \
+    torchvision==0.17.0 \
+    torchaudio==2.2.0 \
     "faiss-cpu>=1.7.4" \
     "sentence-transformers>=2.2.2" \
     "transformers>=4.34.0" \
@@ -49,8 +48,7 @@ RUN pip install --no-cache-dir \
     scikit-learn
 
 # =========================
-# Install the rest of the requirements
-# Exclude already installed core packages
+# Install the rest of requirements
 # =========================
 RUN grep -Ev '^(torch|torchaudio|torchvision|faiss-cpu|sentence-transformers|transformers|datasets|numpy|scipy|scikit-learn)' requirements.txt > requirements_no_core.txt \
     && pip install --no-cache-dir -r requirements_no_core.txt
