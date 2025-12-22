@@ -1,4 +1,4 @@
-# Use official Python image
+# Use official Python 3.11 image
 FROM python:3.11-slim
 
 # Set environment variables
@@ -14,15 +14,23 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install
+# Copy requirements
 COPY requirements.txt /app/
+
+# Upgrade pip
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+
+# Install latest PyTorch CPU version compatible with Python 3.11
+RUN pip install torch==2.9.1+cpu --index-url https://download.pytorch.org/whl/cpu
+
+# Install the rest of the requirements (excluding torch)
+RUN grep -v 'torch==' requirements.txt > requirements_no_torch.txt \
+    && pip install -r requirements_no_torch.txt
 
 # Copy the project files
 COPY . /app/
 
-# Expose port (Railway uses 8000 by default)
+# Expose port
 EXPOSE 8000
 
 # Run Django using Gunicorn
