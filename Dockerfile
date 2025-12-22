@@ -33,13 +33,16 @@ COPY requirements.txt /app/
 RUN pip install --upgrade pip
 
 # =========================
-# Install PyTorch + core ML dependencies
+# Install PyTorch CPU wheels first
 # =========================
-RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu \
-    torch==2.2.0 \
-    torchaudio==2.2.0 \
-    torchvision==0.17.0 \
-    faiss-cpu>=1.7.4 \
+RUN pip install --no-cache-dir torch==2.2.0+cpu \
+    torchvision==0.17.0+cpu \
+    torchaudio==2.2.0+cpu --index-url https://download.pytorch.org/whl/cpu
+
+# =========================
+# Install ML dependencies
+# =========================
+RUN pip install --no-cache-dir faiss-cpu>=1.7.4 \
     sentence-transformers>=2.2.2 \
     transformers>=4.34.0 \
     datasets>=2.13.0 \
