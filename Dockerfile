@@ -33,25 +33,24 @@ COPY requirements.txt /app/
 RUN pip install --upgrade pip
 
 # =========================
-# Install PyTorch CPU wheels first
+# Install core ML dependencies safely
+# Quotes are required for >= and < operators to avoid /bin/sh errors
 # =========================
-RUN pip install --no-cache-dir torch==2.2.0+cpu \
+RUN pip install --no-cache-dir \
+    torch==2.2.0+cpu \
     torchvision==0.17.0+cpu \
-    torchaudio==2.2.0+cpu --index-url https://download.pytorch.org/whl/cpu
-
-# =========================
-# Install ML dependencies
-# =========================
-RUN pip install --no-cache-dir faiss-cpu>=1.7.4 \
-    sentence-transformers>=2.2.2 \
-    transformers>=4.34.0 \
-    datasets>=2.13.0 \
-    numpy<2 \
+    torchaudio==2.2.0+cpu \
+    "faiss-cpu>=1.7.4" \
+    "sentence-transformers>=2.2.2" \
+    "transformers>=4.34.0" \
+    "datasets>=2.13.0" \
+    "numpy<2" \
     scipy \
     scikit-learn
 
 # =========================
-# Install remaining requirements
+# Install the rest of the requirements
+# Exclude already installed core packages
 # =========================
 RUN grep -Ev '^(torch|torchaudio|torchvision|faiss-cpu|sentence-transformers|transformers|datasets|numpy|scipy|scikit-learn)' requirements.txt > requirements_no_core.txt \
     && pip install --no-cache-dir -r requirements_no_core.txt
@@ -74,4 +73,4 @@ EXPOSE 8000
 # =========================
 # Run Django: Migrations, Collectstatic, Gunicorn
 # =========================
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn rag_project.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn rag_project.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --threads 4 --timeout 120"]
