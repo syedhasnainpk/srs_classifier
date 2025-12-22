@@ -4,13 +4,15 @@ import os
 import sys
 from dotenv import load_dotenv
 
+# Load environment variables from .env (if present)
+load_dotenv()
+
+# Ensure the settings module is set correctly for manage commands
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rag_project.settings')
 
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.rag_project.settings')
-
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

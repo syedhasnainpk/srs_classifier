@@ -20,11 +20,12 @@ COPY requirements.txt /app/
 # Upgrade pip
 RUN pip install --upgrade pip
 
-# Install latest PyTorch CPU version compatible with Python 3.11
-RUN pip install torch==2.9.1+cpu --index-url https://download.pytorch.org/whl/cpu
+# Install PyTorch and related CPU wheels matching requirements
+RUN pip install torch==2.2.0+cpu torchaudio==2.2.0+cpu torchvision==0.17.0+cpu --index-url https://download.pytorch.org/whl/cpu
 
-# Install the rest of the requirements (excluding torch)
-RUN grep -v 'torch==' requirements.txt > requirements_no_torch.txt \
+# Install the rest of the requirements (excluding torch/torchaudio/torchvision)
+# Use a pattern that matches package names regardless of == or >= pins
+RUN grep -Ev '^(torch|torchaudio|torchvision)' requirements.txt > requirements_no_torch.txt \
     && pip install -r requirements_no_torch.txt
 
 # Copy the project files
@@ -34,4 +35,4 @@ COPY . /app/
 EXPOSE 8000
 
 # Run Django using Gunicorn
-CMD ["gunicorn", "rag_project.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn rag_project.wsgi:application --bind 0.0.0.0:${PORT:-8000}"]
