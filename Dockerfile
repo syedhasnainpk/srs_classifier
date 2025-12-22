@@ -16,19 +16,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements
 COPY requirements.txt /app/
 
-# Install Python dependencies into /install
-RUN pip install --upgrade pip \
-    && pip install --prefix=/install --no-cache-dir \
-        "torch==2.2.0+cpu" --index-url https://download.pytorch.org/whl/cpu \
-        "torchvision==0.17.0+cpu" --index-url https://download.pytorch.org/whl/cpu \
-        "torchaudio==2.2.0+cpu" --index-url https://download.pytorch.org/whl/cpu \
-        "faiss-cpu>=1.7.4" \
-        "sentence-transformers>=2.2.2" \
-        "transformers>=4.34.0" \
-        "datasets>=2.13.0" \
-        "numpy<2" \
-        "scipy" \
-        "scikit-learn" \
+# Upgrade pip
+RUN pip install --upgrade pip
+
+# Install heavy dependencies into /install
+RUN pip install --prefix=/install --no-cache-dir \
+        torch==2.2.0 \
+        torchvision==0.17.0 \
+        torchaudio==2.2.0 \
+        faiss-cpu>=1.7.4 \
+        sentence-transformers>=2.2.2 \
+        transformers>=4.34.0 \
+        datasets>=2.13.0 \
+        numpy<2 \
+        scipy \
+        scikit-learn \
     && grep -Ev '^(torch|torchaudio|torchvision|faiss-cpu|sentence-transformers|transformers|datasets|numpy|scipy|scikit-learn)' requirements.txt > requirements_no_core.txt \
     && pip install --prefix=/install --no-cache-dir -r requirements_no_core.txt
 
@@ -45,11 +47,16 @@ COPY --from=builder /install /usr/local
 # Copy project files
 COPY . /app/
 
-# Ensure static folder exists
-RUN mkdir -p /app/staticfiles
+# Create static directories
+RUN mkdir -p /app/static /app/staticfiles
 
 # Expose dynamic port for Railway
 EXPOSE 8000
+
+# Environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV DJANGO_SETTINGS_MODULE=rag_project.settings
 
 # =========================
 # Run Django
