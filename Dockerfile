@@ -19,16 +19,16 @@ COPY requirements.txt /app/
 # Install Python dependencies into /install
 RUN pip install --upgrade pip \
     && pip install --prefix=/install --no-cache-dir \
-        torch==2.2.0+cpu --index-url https://download.pytorch.org/whl/cpu \
-        torchvision==0.17.0+cpu --index-url https://download.pytorch.org/whl/cpu \
-        torchaudio==2.2.0+cpu --index-url https://download.pytorch.org/whl/cpu \
-        faiss-cpu>=1.7.4 \
-        sentence-transformers>=2.2.2 \
-        transformers>=4.34.0 \
-        datasets>=2.13.0 \
-        numpy<2 \
-        scipy \
-        scikit-learn \
+        "torch==2.2.0+cpu" --index-url https://download.pytorch.org/whl/cpu \
+        "torchvision==0.17.0+cpu" --index-url https://download.pytorch.org/whl/cpu \
+        "torchaudio==2.2.0+cpu" --index-url https://download.pytorch.org/whl/cpu \
+        "faiss-cpu>=1.7.4" \
+        "sentence-transformers>=2.2.2" \
+        "transformers>=4.34.0" \
+        "datasets>=2.13.0" \
+        "numpy<2" \
+        "scipy" \
+        "scikit-learn" \
     && grep -Ev '^(torch|torchaudio|torchvision|faiss-cpu|sentence-transformers|transformers|datasets|numpy|scipy|scikit-learn)' requirements.txt > requirements_no_core.txt \
     && pip install --prefix=/install --no-cache-dir -r requirements_no_core.txt
 
