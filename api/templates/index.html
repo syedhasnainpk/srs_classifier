@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title> SRS Classifier </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom scrollbar for answer section */
+    #answerText {
+      max-height: 200px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #4ade80 transparent;
+    }
+    #answerText::-webkit-scrollbar {
+      width: 8px;
+    }
+    #answerText::-webkit-scrollbar-thumb {
+      background-color: #4ade80;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-green-50 via-white to-green-50 min-h-screen flex items-center justify-center p-6">
+
+  <main class="bg-white shadow-2xl rounded-3xl max-w-3xl w-full p-10 md:p-16 ring-1 ring-green-200">
+    <h1 class="text-4xl font-extrabold text-center text-green-700 mb-8 select-none tracking-tight drop-shadow-md">
+      SRS <span class="text-green-900"> Classifier</span>
+    </h1>
+
+    <!-- Upload form -->
+    <form id="uploadForm" enctype="multipart/form-data" class="mb-10 space-y-4">
+      <label for="fileInput" class="block text-lg font-semibold text-green-800">Upload Document (PDF or Word):</label>
+      <input
+        type="file"
+        id="fileInput"
+        accept=".pdf,.docx"
+        class="block w-full rounded-lg border border-green-300 px-4 py-2 focus:outline-none focus:ring-4 focus:ring-green-400 focus:border-green-600 transition"
+      />
+      <button
+        type="submit"
+        class="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold py-3 rounded-lg shadow-md focus:outline-none focus:ring-4 focus:ring-green-500 transition"
+      >
+        Upload
+      </button>
+      <p id="uploadStatus" class="text-sm text-center text-green-700 min-h-[1.5rem]"></p>
+    </form>
+
+    <!-- Question input -->
+    <label for="questionInput" class="block mb-2 text-lg font-semibold text-green-800 select-none">Ask a Question:</label>
+    <textarea
+      id="questionInput"
+      rows="4"
+      placeholder="Enter your question here..."
+      class="w-full rounded-lg border border-green-300 p-4 resize-none focus:outline-none focus:ring-4 focus:ring-green-400 focus:border-green-600 transition mb-6"
+    ></textarea>
+    <button
+      id="askBtn"
+      class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-3 rounded-lg shadow-md focus:outline-none focus:ring-4 focus:ring-blue-500 transition"
+    >
+      Ask
+    </button>
+
+    <div id="loading" class="hidden mt-6 text-center text-gray-600 italic">Loading answer...</div>
+
+    <section
+      id="answerSection"
+      class="mt-8 bg-green-50 rounded-lg p-6 shadow-inner border border-green-300 hidden"
+      aria-live="polite"
+    >
+      <h2 class="text-2xl font-bold text-green-700 mb-4 select-none">Answer:</h2>
+      <p id="answerText" class="whitespace-pre-wrap text-green-900 text-lg leading-relaxed mb-6"></p>
+
+      <h3 class="font-semibold text-green-800 mb-3 select-none">Retrieved Documents:</h3>
+      <ul
+        id="docsList"
+        class="list-disc list-inside max-h-40 overflow-y-auto border border-green-200 rounded-md p-4 bg-white text-green-900"
+      ></ul>
+    </section>
+  </main>
+
+<script>
+  // Upload document
+  document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fileInput = document.getElementById('fileInput');
+    const uploadStatus = document.getElementById('uploadStatus');
+
+    if (!fileInput.files.length) {
+      alert('Please select a file to upload.');
+      return;
+    }
+
+    uploadStatus.textContent = 'Uploading...';
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+
+    try {
+      const response = await fetch('http://localhost:8000/upload/', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        uploadStatus.textContent = `${data.message} (${data.points_added} chunks added)`;
+        fileInput.value = "";
+      } else {
+        uploadStatus.textContent = data.error || 'Upload failed.';
+      }
+    } catch (error) {
+      uploadStatus.textContent = 'Network error: ' + error.message;
+    }
+  });
+
+  // Ask question
+  document.getElementById('askBtn').addEventListener('click', async () => {
+    const question = document.getElementById('questionInput').value.trim();
+    if (!question) {
+      alert('Please enter a question.');
+      return;
+    }
+
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('answerSection').classList.add('hidden');
+
+    try {
+      const response = await fetch('http://localhost:8000/query/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        document.getElementById('answerText').textContent = data.answer;
+
+        const docsList = document.getElementById('docsList');
+        docsList.innerHTML = '';
+        data.retrieved_docs.forEach(doc => {
+          const li = document.createElement('li');
+          li.textContent = doc;
+          docsList.appendChild(li);
+        });
+
+        document.getElementById('answerSection').classList.remove('hidden');
+      } else {
+        alert(data.error || 'Something went wrong.');
+      }
+    } catch (error) {
+      alert('Network error: ' + error.message);
+    } finally {
+      document.getElementById('loading').classList.add('hidden');
+    }
+  });
+</script>
+
+</body>
+</html>
